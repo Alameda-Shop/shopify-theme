@@ -1,0 +1,297 @@
+<!doctype html>
+
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <!-- Google Optimize -->
+    <script src="https://www.googleoptimize.com/optimize.js?id=GTM-PM4S73B"></script>
+    <!-- End Google Optimize -->
+    <!-- Google Tag Manager -->
+		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','GTM-KTDN6C');</script>
+	<!-- End Google Tag Manager -->
+    
+    <meta charset="utf-10010">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="{{ settings.accent_color }}">
+
+    {%- capture seo_page_title -%}
+      {%- if request.page_type == 'search' and search.terms != blank -%}
+        {{ search.terms | split: ' AND ' | last }} - {{ shop.name }}
+      {%- else -%}
+        {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}
+      {%- endif -%}
+    {%- endcapture -%}
+
+    <title>{{- seo_page_title -}}</title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+    
+    {% if product == blank and collection and collection.metafields.nosto != blank %}
+      <link rel="canonical" href="{{shop.url}}/collections/{{collection.metafields.nosto.sourceHandle}}">
+    {% else %}
+      <link rel="canonical" href="{{ canonical_url }}">
+    {% endif %}
+    
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x96' }}" type="image/png">
+    {%- endif -%}
+
+    {%- comment -%}Few prefech to increase performance on commonly used third-parties{%- endcomment -%}
+    <link rel="preload" as="style" href="{{ 'theme.css' | asset_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
+
+    {% render 'social-meta-tags' %}
+    {% render 'css-variables' %}
+
+    {{ content_for_header }}
+{%- render 'bold-common' -%}
+
+    <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
+
+    {% render 'microdata-schema' %}
+
+    <script>
+      // This allows to expose several variables to the global scope, to be used in scripts
+      window.theme = {
+        pageType: {{ request.page_type | json }},
+        cartCount: {{ cart.item_count | json }},
+        moneyFormat: {{ shop.money_format | json }},
+        moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
+        showDiscount: {% if settings.show_discount %}true{% else %}false{% endif %},
+        discountMode: {{ settings.discount_mode | json }},
+        searchMode: {{ settings.search_mode | json }},
+        cartType: {{ settings.cart_type | json }}
+      };
+
+      window.routes = {
+        rootUrl: {{ routes.root_url | json }},
+        cartUrl: {{ routes.cart_url | json }},
+        cartAddUrl: {{ routes.cart_add_url | json }},
+        cartChangeUrl: {{ routes.cart_change_url | json }},
+        searchUrl: {{ routes.search_url | json }},
+        productRecommendationsUrl: {{ routes.product_recommendations_url | json }}
+      };
+
+      window.languages = {
+        collectionOnSaleLabel: {{ 'collection.product.discount_html' | t | json }},
+        productFormUnavailable: {{ 'product.form.unavailable' | t | json }},
+        productFormAddToCart: {% if product.template_suffix == 'pre-order' %}{{ 'product.form.pre_order' | t | json }}{% else %}{{ 'product.form.add_to_cart' | t | json }}{% endif %},
+        productFormSoldOut: {{ 'product.form.sold_out' | t | json }},
+        shippingEstimatorNoResults: {{ 'cart.shipping_estimator.no_results_title' | t | json }},
+        shippingEstimatorOneResult: {{ 'cart.shipping_estimator.one_result_title' | t | json }},
+        shippingEstimatorMultipleResults: {{ 'cart.shipping_estimator.multiple_results_title' | t | json }},
+        shippingEstimatorErrors: {{ 'cart.shipping_estimator.errors' | t | json }}
+      };
+
+      window.lazySizesConfig = {
+        loadHidden: false,
+        hFac: 0.8,
+        expFactor: 3,
+        customMedia: {
+          '--phone': '(max-width: 640px)',
+          '--tablet': '(min-width: 641px) and (max-width: 1023px)',
+          '--lap': '(min-width: 1024px)'
+        }
+      };
+
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+    </script>
+
+    {%- if request.page_type == 'customers/addresses' -%}
+      <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer></script>
+      <script src="{{ 'customer_area.js' | shopify_asset_url }}" defer></script>
+    {%- endif -%}
+
+    <script src="//cdn.polyfill.io/v3/polyfill.min.js?unknown=polyfill&features=fetch,Element.prototype.closest,Element.prototype.matches,Element.prototype.remove,Element.prototype.classList,Array.prototype.includes,Array.prototype.fill,String.prototype.includes,String.prototype.padStart,Object.assign,CustomEvent,Intl,URL,DOMTokenList,IntersectionObserver,IntersectionObserverEntry" defer></script>
+    <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'custom.js' | asset_url }}" defer></script>
+
+    {%- if request.page_type != 'cart' -%}
+      <script>
+        (function () {
+          window.onpageshow = function() {
+            // We force re-freshing the cart content onpageshow, as most browsers will serve a cache copy when hitting the
+            // back button, which cause staled data
+            document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', {
+              bubbles: true,
+              detail: {scrollToTop: false}
+            }));
+          };
+        })();
+      </script>
+    {%- endif -%}
+  {% include 'nosto-script' with 'shopify-7434993' %}
+
+<!--begin-bc-sf-filter-css-->
+  {% include 'bc-sf-filter-style' %}
+<!--end-bc-sf-filter-css-->
+
+
+  {% include 'scm-product-label-head' %}
+</head>
+
+  <body class="warehouse--v1 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport">
+    
+    <!-- Google Tag Manager (noscript) -->
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KTDN6C"
+		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+
+    <span class="loading-bar"></span>
+    
+    {% section 'announcement-bar' %}
+
+    {%- unless request.page_type == 'cart' -%}
+      {%- comment -%}As required by Shopify rules, popup must be removed on cart page to remove distraction{%- endcomment -%}
+      {% section 'popups' %}
+    {%- endunless -%}
+
+    {% section 'header' %}
+
+    <main id="main" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    {%- if request.page_type == 'blog' or request.page_type == 'article' or request.page_type == 'page' -%}
+      {% section 'static-newsletter' %}
+    {%- endif -%}
+
+    {% section 'text-with-icons' %}
+    {% section 'footer' %}
+    
+    
+    <button onclick="topFunction()" id="myBtnTop" title="Go to top">
+    	<svg class="icon icon--arrow-bottom" viewBox="0 0 12 8" role="presentation" style="
+    transform: rotate(180deg);">
+      		<path stroke="currentColor" stroke-width="2" d="M10 2L6 6 2 2" fill="none" stroke-linecap="square"></path>
+    	</svg>
+    </button>
+    
+  {% include 'nosto-tagging' %}
+
+<!--begin-bc-sf-filter-js-->
+  {% include 'bc-sf-filter' %}
+<!--end-bc-sf-filter-js-->
+{% include 'social-login' %}
+<!-- CRITEO000 START -->
+    
+{% include 'criteo-tracking' %}
+<!-- CRITEO END -->
+</body>
+</html>
+<!-- StartDeliveryDateRange version: 2.0 -->
+<script>
+  var DeliveryDateRangeData = (function() {
+    var data = {
+      product: null,
+      settings: {{ shop.metafields.delivery_date_range.user_setting | json }},
+      cartProducts: []
+    };
+
+    {% if product %}
+    {% assign collection_titles = product.collections | map: 'title' | downcase %}
+    var variants = [];
+    {% for var in product.variants %}
+    var variant = {}
+    variant['id'] = {{ var.id }};
+    variant['inventory_quantity'] = {{ var.inventory_quantity }};
+    variant['sku'] = "{{ var.sku }}";
+    variants.push(variant);
+    {% endfor %}
+    data.product = (function() {
+      return {
+        tags: {{ product.tags | json }},
+        collections: {{ collection_titles }},
+        vendor: "{{ product.vendor | downcase }}",
+        type: "{{ product.type | downcase }}",
+        available: {{ product.available }},
+        inventory_quantity: "{{ product.selected_or_first_available_variant.inventory_quantity }}",
+        variants: variants,
+        sku: "{{ product.selected_or_first_available_variant.sku }}"
+      }
+    })();
+    {% endif %}
+    {% if cart.items.size > 0 %}
+    {% for item in cart.items %}
+    {% assign collection_titles = item.product.collections | map: 'title' | downcase %}
+    data.cartProducts.push(function() {
+      return {
+        variant_id: "{{ item.variant_id }}",
+        inventory_quantity: "{{ item.variant.inventory_quantity }}",
+        tags: {{ item.product.tags | json }},
+        sku: "{{ item.variant.sku | downcase }}",
+        collections: {{ collection_titles }},
+        vendor: "{{ item.product.vendor | downcase }}",
+        type: "{{ item.product.type | downcase }}"
+      }
+    }());
+    {% endfor %}
+    {% endif %}
+
+    return data;
+  })();
+console.log(DeliveryDateRangeData());
+</script>
+<!-- EndDeliveryDateRange -->
+
+<!-- Start of ayudaalameda Zendesk Widget script -->
+<script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=7c0ffe86-9963-44e0-b4b5-377403d8a07c"> </script>
+<!-- End of ayudaalamedaco Zendesk Widget script -->
+<script>
+window.$zopim||(function(d,s){var z=$zopim=function(c){z._.push(c)},$=z.s=
+
+d.createElement(s),e=d.getElementsByTagName(s)[0];z.set=function(o){z.set.
+
+_.push(o)};z._=[];z.set._=[];$.async=!0;$.setAttribute("charset","utf-8");
+
+$.src="//v2.zopim.com/?ABCDEFGH";z.t=+new Date;$.
+
+type="text/javascript";e.parentNode.insertBefore($,e)})(document,"script"); 
+
+$zopim(function() {
+
+$zopim.livechat.setOnConnected(function() {
+
+var department_status = $zopim.livechat.departments.getDepartment('SoporteMX');
+
+if (department_status.status == 'offline') {
+
+// 1 - Configurar el estado de la cuenta como “desconectado”
+
+$zopim.livechat.setStatus('offline');
+
+// 2 - Ocultar el widget
+
+//$zopim.livechat.hideAll(); 
+
+} else {
+
+// El departamento está conectado (al menos un agente está conectado) 
+
+// 3 - Ocultar la opción de la lista desplegable en el formulario previo al chat para seleccionar el departamento
+
+$zopim.livechat.departments.filter(''); 
+
+// 4 - Configurar el departamento automáticamente
+
+$zopim.livechat.departments.setVisitorDepartment('SoporteMX'); 
+
+}
+
+});
+
+});
+
+</script>
+
+

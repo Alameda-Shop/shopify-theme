@@ -1,0 +1,19 @@
+{{ content_for_index }}
+{% include 'nosto-element' with 'frontpage-nosto-1' %}
+
+{% include 'nosto-element' with 'frontpage-nosto-3' %}
+
+{% include 'nosto-element' with 'frontpage-nosto-4' %}
+
+{%- comment -%}
+<!-- Kwanko : Homepage retargeting tracker Jeferson Moreno -- 4/11/2019 -->
+<script type="text/javascript" src="https://img.metaffiliation.com/u/29/p68007.js"></script>
+<script type="text/javascript">
+window.ptag_params = {
+zone: "homepage",
+customerId: "{{ customer.id }}",
+siteType: "d",
+m_md5: "{{ customer.email }}"
+};
+</script>
+{%- endcomment -%} 

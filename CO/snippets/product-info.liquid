@@ -1,0 +1,675 @@
+{%- assign selected_variant = product.selected_or_first_available_variant -%}
+
+<div class="card {% if product.media.size > 0 %}card--collapsed{% endif %} {% if template.name == 'product' %}card--sticky{% endif %}">
+  {%- if section.settings.enable_image_zoom -%}
+    <div id="product-zoom-{{ section.id }}" class="product__zoom-wrapper"></div>
+  {%- endif -%}
+
+  <div class="card__section">
+    {% comment %}
+    ------------------------------------------------------------------------------
+    PRODUCT META
+    ------------------------------------------------------------------------------
+    {% endcomment %}
+
+    {%- if section.settings.show_share_buttons -%}
+      {%- capture share_buttons -%}
+        {%- assign share_url = shop.url | append: product.url -%}
+        {%- assign twitter_text = product.title | url_param_escape -%}
+        {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
+        {%- assign pinterest_image = product.featured_media | img_url: '1024x' | prepend: 'https:' -%}
+
+        <ul class="social-media__item-list list--unstyled">
+          <li class="social-media__item social-media__item--facebook">
+            <a href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.facebook_share' | t }}">{%- render 'icon', icon: 'facebook' -%}</a>
+          </li>
+
+          <li class="social-media__item social-media__item--pinterest">
+            <a href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.pinterest_pin' | t }}">{%- render 'icon', icon: 'pinterest' -%}</a>
+          </li>
+
+          <li class="social-media__item social-media__item--twitter">
+            <a href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" aria-label="{{ 'general.social.twitter_tweet' | t }}">{%- render 'icon', icon: 'twitter' -%}</a>
+          </li>
+
+          <li class="social-media__item">
+            <a href="mailto:?&subject={{ product.title | escape }}&body={{ share_url }}" aria-label="{{ 'general.social.email_share' | t }}">{% render 'icon', icon: 'email' %}</a>
+          </li>
+        </ul>
+      {%- endcapture -%}
+    {%- endif -%}
+
+    <div class="product-meta">
+      {%- if template.name == 'product' and template != 'product.quick-view' -%}
+        <h1 class="product-meta__title heading h1">{{ product.title }}</h1>
+      {%- else -%}
+        <h3 class="product-meta__title heading h2">
+          <a href="{{ product.url }}">{{ product.title }}</a>
+        </h3>
+      {%- endif -%}
+
+      {%- capture product_labels -%}
+        {%- for tag in product.tags -%}
+          {%- if tag contains '__label:' -%}
+            <span class="product-label product-label--custom1">{{ tag | split: '__label:' | last }}</span>
+          {%- endif -%}
+
+          {%- if tag contains '__label1:' -%}
+            <span class="product-label product-label--custom1">{{ tag | split: '__label1:' | last }}</span>
+          {%- endif -%}
+
+          {%- if tag contains '__label2:' -%}
+            <span class="product-label product-label--custom2">{{ tag | split: '__label2:' | last }}</span>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if settings.show_discount -%}
+          {%- assign savings = 0 -%}
+
+          {%- if settings.discount_mode == 'percentage' -%}
+            {%- assign savings = selected_variant.compare_at_price | minus: selected_variant.price | times: 100.0 | divided_by: selected_variant.compare_at_price | round | append: '%' -%}
+          {%- else -%}
+            {%- capture savings -%}<span>{{ selected_variant.compare_at_price | minus: selected_variant.price | money_without_trailing_zeros }}</span>{%- endcapture -%}
+          {%- endif -%}
+
+          <span class="product-label product-label--on-sale" {% unless selected_variant.price < selected_variant.compare_at_price %}style="display: none"{% endunless %}>{{ 'collection.product.discount_html' | t: savings: savings }}</span>
+        {%- endif -%}
+      {%- endcapture -%}
+
+      {%- if product_labels != blank -%}
+        <div class="product-meta__label-list">
+          {{- product_labels -}}
+        </div>
+      {%- endif -%}
+      
+      
+      {%- if section.settings.show_vendor or section.settings.show_sku -%}
+        <div class="product-meta__reference">
+          {%- if section.settings.show_vendor -%}
+
+            {%- assign vendor_handle = product.vendor | handle -%}
+            {%- assign vendor_array = settings.choose_show_vendors -%}
+            {%- assign collection_for_vendor = collections[vendor_handle] -%}
+
+            {% if settings.choose_show_vendors != "" %}
+              {% assign array_vendors = vendor_array | split: ','%}
+              {% for vendor in array_vendors %}
+                {% if product.vendor == vendor %}
+                  {%- unless collection_for_vendor.empty? -%}
+                    <a class="product-meta__vendor link link--accented" href="{{ collection_for_vendor.url }}">{{ product.vendor }}</a>
+                  {%- else -%}
+                    <a class="product-meta__vendor link link--accented" href="{{ product.vendor | url_for_vendor }}">{{ product.vendor }}</a>
+                  {%- endunless -%}
+                  {% break %}  
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+
+          {%- endif -%}
+
+          {%- if section.settings.show_sku -%}
+            <span class="product-meta__sku" {% if selected_variant.sku == blank %}style="display: none"{% endif %}>
+              {{- 'product.general.sku' | t -}} <span class="product-meta__sku-number">{{ selected_variant.sku }}</span>
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      
+      <div id="tiempoEntrega" style="margin-bottom:18px;">
+        <a href="https://ayudaalamedaco.zendesk.com/hc/es/articles/360056059694--Cu%C3%A1l-es-el-costo-de-env%C3%ADo-" target="_blank">
+          
+          {%- for tag in product.tags -%}
+          	{% if tag == "Envio Express" %}
+          		{%- assign envio_express = true -%}          		
+          		{% break %}
+          	{%- endif -%}
+          {% endfor %}
+                              
+          {% if envio_express %}
+            <figure style="display:inline-block;margin: 7px 11px 0 0px; float:left;">
+              <svg version="1.1" baseProfile="tiny" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 96.09 26.23" xml:space="preserve" style=" width: 82px; height: 23px;"><g><g><rect y="5.21" fill="#828383" width="28.56" height="1.91"></rect><rect x="7.02" y="11.1" fill="#828383" width="13.86" height="1.91"></rect><path fill="#828383" d="M27.31,15.27c-2.51,0-4.62,1.69-5.27,4h-6.77v1.91h6.59c0.22,2.83,2.57,5.06,5.46,5.06c3.03,0,5.48-2.45,5.48-5.48C32.79,17.72,30.34,15.27,27.31,15.27z M27.31,24.31c-1.97,0-3.56-1.59-3.56-3.56s1.59-3.56,3.56-3.56s3.56,1.59,3.56,3.56S29.28,24.31,27.31,24.31z"></path><g><polygon fill="#828383" points="52.09,11.33 52.09,11.33 49.89,11.33 44.97,5.21 38.65,5.21 39.22,0 39.22,0 39.22,0 15.4,0 15.4,1.91 37.11,1.91 35.41,17.47 37.32,17.47 38.45,7.12 43.86,7.12 48.9,13.23 49.89,13.23 52.09,13.23 52.09,17.47 53.99,17.47 53.99,13.23 53.99,11.33 53.99,11.33 "></polygon><path fill="#828383" d="M46,15.27c-2.51,0-4.62,1.69-5.27,4h-6.48v1.91h6.29c0.22,2.83,2.57,5.06,5.46,5.06c3.03,0,5.48-2.45,5.48-5.48C51.48,17.72,49.02,15.27,46,15.27z M46,24.31c-1.97,0-3.56-1.59-3.56-3.56s1.59-3.56,3.56-3.56c1.97,0,3.56,1.59,3.56,3.56S47.96,24.31,46,24.31z"></path></g></g><g><path fill="#828383" d="M61.4,2.18h4.44v1.11H62.6V5.2h2.93v1.07H62.6v1.63h3.23V9H61.4V2.18z"></path><path fill="#828383" d="M68.4,2.14h0.38L73,6.54V2.18h1.2v6.87h-0.32L69.6,4.77V9h-1.2V2.14z"></path><path fill="#828383" d="M79.55,6.84l2.1-4.66h1.26l-3.16,6.91h-0.41l-3.16-6.91h1.29L79.55,6.84z"></path><path fill="#828383" d="M84.45,1.66l-0.19-0.54l2.14-1.07L86.74,1L84.45,1.66z M84.88,2.18h1.2V9h-1.2V2.18z"></path><path fill="#828383" d="M92.12,2.06c2.12,0,3.65,1.49,3.65,3.52c0,2.01-1.56,3.52-3.65,3.52c-2.09,0-3.64-1.5-3.64-3.52C88.48,3.61,90.07,2.06,92.12,2.06z M92.13,8.05c1.32,0,2.35-1.06,2.35-2.45c0-1.4-0.98-2.46-2.35-2.46c-1.35,0-2.35,1.06-2.35,2.46C89.78,6.97,90.81,8.05,92.13,8.05z"></path></g><path fill="#828383" d="M62.77,17.23v-3.96l-1.07,0.41l-0.3-0.76l2.06-0.79h0.22v5.1H62.77z"></path><path fill="#828383" d="M65.67,15.77v-0.63h1.8v0.63H65.67z"></path><path fill="#828383" d="M70.39,12.96v1.2c0.1-0.01,0.2-0.02,0.3-0.02c1.04,0,1.86,0.39,1.86,1.57c0,0.91-0.65,1.62-1.91,1.62c-1.04,0-1.55-0.44-1.55-0.44l0.32-0.74c0,0,0.42,0.38,1.2,0.38c0.63,0,0.98-0.4,0.98-0.85c0-0.52-0.44-0.83-1.11-0.83c-0.43,0-0.8,0.09-0.8,0.09s-0.2-0.18-0.22-0.2v-2.6h2.81v0.83H70.39z"></path><path fill="#828383" d="M77.35,12.14h1.92c1.58,0,2.73,1.07,2.73,2.54c0,1.46-1.17,2.55-2.73,2.55h-1.92V12.14z M78.26,12.96v3.44h1.02c0.99,0,1.75-0.72,1.75-1.71c0-1-0.73-1.73-1.75-1.73H78.26z"></path><path fill="#828383" d="M83.46,11.75l-0.14-0.41l1.59-0.8l0.26,0.71L83.46,11.75z M83.79,12.14h0.9v5.1h-0.9V12.14z"></path><path fill="#828383" d="M87.11,17.23h-0.94l2.39-5.14h0.2l2.39,5.14h-0.96l-0.45-1.02h-2.19L87.11,17.23z M87.87,15.5h1.55l-0.78-1.75L87.87,15.5z"></path><path fill="#828383" d="M93.93,17.32c-0.6,0-1.2-0.2-1.67-0.49l0.31-0.81c0.42,0.28,0.93,0.46,1.38,0.46c0.6,0,0.88-0.3,0.88-0.62c0-0.34-0.19-0.54-1.11-0.88c-0.99-0.36-1.33-0.83-1.33-1.44c0-0.77,0.62-1.48,1.71-1.48c0.54,0,1.08,0.16,1.41,0.35l-0.29,0.8c-0.3-0.17-0.75-0.34-1.14-0.34c-0.54,0-0.78,0.3-0.78,0.65c0,0.33,0.28,0.53,0.99,0.79c1.14,0.44,1.46,0.89,1.46,1.56C95.76,16.76,95.07,17.32,93.93,17.32z"></path><g><path fill="#828383" d="M64.86,24.04h-2.55v2.06H61.4v-5.22h0.92v2.35h2.55v-2.34h0.92v5.21h-0.92V24.04z"></path><path fill="#828383" d="M68.27,26.1h-0.97l2.45-5.27h0.21l2.45,5.27h-0.99l-0.46-1.04h-2.24L68.27,26.1z M69.06,20.48l-0.15-0.42l1.63-0.82l0.27,0.73L69.06,20.48z M69.05,24.32h1.59l-0.79-1.8L69.05,24.32z"></path><path fill="#828383" d="M73.94,20.87h1.67c1.34,0,1.95,0.56,1.95,1.38c0,0.56-0.33,0.97-0.91,1.17c0.72,0.21,1.06,0.63,1.06,1.19c0,0.93-0.9,1.48-2.09,1.48h-1.67V20.87z M74.86,21.72v1.42h0.66c0.75,0.01,1.08-0.38,1.08-0.77c0-0.36-0.27-0.65-0.94-0.65H74.86z M74.86,23.8v1.45h0.79c0.78,0,1.05-0.34,1.05-0.73c0-0.36-0.3-0.72-1.27-0.72H74.86z"></path><path fill="#828383" d="M79.56,20.87h0.92v5.22h-0.92V20.87z"></path><path fill="#828383" d="M82.65,20.87h0.92v4.37h2.47v0.85h-3.4V20.87z"></path><path fill="#828383" d="M87.54,20.87h3.4v0.85h-2.47v1.46h2.24V24h-2.24v1.25h2.47v0.85h-3.4V20.87z"></path><path fill="#828383" d="M94.22,26.18c-0.62,0-1.23-0.21-1.71-0.5l0.32-0.83c0.43,0.29,0.95,0.47,1.42,0.47c0.62,0,0.9-0.3,0.9-0.64c0-0.35-0.19-0.56-1.14-0.91c-1.02-0.37-1.37-0.85-1.37-1.48c0-0.79,0.64-1.52,1.75-1.52c0.56,0,1.11,0.16,1.44,0.36l-0.3,0.82c-0.3-0.17-0.77-0.35-1.17-0.35c-0.55,0-0.8,0.3-0.8,0.67c0,0.33,0.28,0.54,1.02,0.81c1.17,0.45,1.5,0.91,1.5,1.6C96.09,25.61,95.39,26.18,94.22,26.18z"></path></g></g></svg>
+          	</figure>
+          {% else %}
+          	<figure style="display:inline-block;margin: 7px 11px 0 0px; float:left;">
+              <svg style="width:40px;margin:auto;display:inline-block;" version="1.0" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 53.99 26.23" style="enable-background:new 0 0 53.99 26.23;" xml:space="preserve"><g><rect y="5.21" style="fill:#C3C3C3;" width="28.56" height="1.91"/><rect x="7.02" y="11.1" style="fill:#C3C3C3;" width="13.86" height="1.91"/><path style="fill:#C3C3C3;" d="M27.31,15.27c-2.51,0-4.62,1.69-5.27,4h-6.77v1.91h6.59c0.22,2.83,2.57,5.06,5.46,5.06c3.03,0,5.48-2.45,5.48-5.48C32.79,17.72,30.34,15.27,27.31,15.27z M27.31,24.31c-1.97,0-3.56-1.59-3.56-3.56s1.59-3.56,3.56-3.56s3.56,1.59,3.56,3.56S29.28,24.31,27.31,24.31z"/><g><polygon style="fill:#C3C3C3;" points="52.09,11.33 52.09,11.33 49.89,11.33 44.97,5.21 38.65,5.21 39.22,0 39.22,0 39.22,0 15.4,0 15.4,1.91 37.11,1.91 35.41,17.47 37.32,17.47 38.45,7.12 43.86,7.12 48.9,13.23 49.89,13.23 52.09,13.23 52.09,17.47 53.99,17.47 53.99,13.23 53.99,11.33 53.99,11.33 "/><path style="fill:#C3C3C3;" d="M46,15.27c-2.51,0-4.62,1.69-5.27,4h-6.48v1.91h6.29c0.22,2.83,2.57,5.06,5.46,5.06c3.03,0,5.48-2.45,5.48-5.48C51.48,17.72,49.02,15.27,46,15.27z M46,24.31c-1.97,0-3.56-1.59-3.56-3.56s1.59-3.56,3.56-3.56c1.97,0,3.56,1.59,3.56,3.56S47.96,24.31,46,24.31z"/></g></g></svg>
+            </figure>
+          {%- endif -%}          
+          
+          <span style="
+                       background: #e2e2e2;
+                       padding: 6px 9px;
+                       border-radius: 25px;
+                       color: #292929;
+                       font-size: 11px;
+                       ">Envio Gratis*</span>
+        </a>  
+        <div id='ddr_embed_text' style="margin: 10px 0;"></div>        
+      </div>
+
+      {%comment%}	
+      <div class="product-meta__reference" id="tiempoEntregaProducto">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/es.js"></script>
+        <script> 
+          function addWeekdays(date, days) {
+            date = moment(date); // use a clone
+            while (days > 0) {
+              date = date.add(1, 'days');
+              // decrease "days" only if it's a weekday.
+              if (date.isoWeekday() !== 6 && date.isoWeekday() !== 7) {
+                days -= 1;
+              }
+            }
+            return date;
+          }
+        </script>
+        {%- for tag in product.tags -%}
+        {%- assign order_date2 = "now" | date: "%Y-%m-%d" -%}
+        <input style="display:none" type="text" id="fechaOrden" name="number" value="{{order_date2}}"/>        	
+          {% if tag == "Envio Express" %}            
+        	<span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 2).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 5).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif tag == "TE_5a10" %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 5).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 10).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif tag == "TE_10a15" %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 10).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 15).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif tag == "TE_15a20" %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 15).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 20).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif  tag == "TE_20a25"  %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 20).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 25).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif  tag == "TE_25a30"  %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 25).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 30).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% elsif  tag == "TE_30a40"  %}
+            <span style="color:#ef7b42;font-weight: 600;font-size: 12px;margin-right: 7px;">>>></span>
+        	<span>Recibela entre el</span><strong style="color:#ef7b42;text-decoration:underline;margin-left:5px;"><span id="fechaEntrega0"></span> y el <span id="fechaEntrega"></span></strong>
+            <script>
+              // segunda fecha
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega0');
+              var date = addWeekdays(moment(fechaOrden), 30).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+              var fechaOrden = document.getElementById('fechaOrden').value;
+              var fechaEntrega = document.getElementById('fechaEntrega');
+              var date = addWeekdays(moment(fechaOrden), 40).format('DD MMM');
+              fechaEntrega.innerHTML = date;
+            </script>
+        	{% break %}
+          {% endif %}
+        {% endfor %}
+      </div>
+      {%endcomment%}	
+
+      {%- if section.settings.show_reviews_badge -%}
+        <a href="{% if template.name != 'product' or template == 'product.quick-view' %}{{ product.url | within: collection }}{% endif %}#product-reviews" class="product-meta__reviews-badge link" data-offset="30">
+          <span class="shopify-product-reviews-badge" data-id="{{ product.id }}">
+            {%- comment -%}Display a placeholder, to allocate space{%- endcomment -%}
+            <div class="spr-badge" style="opacity: 0">
+              <span class="spr-starrating spr-badge-starrating">
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+              </span>
+
+              <span class="spr-badge-caption">filler</span>
+            </div>
+          </span>
+        </a>
+      {%- endif -%}
+
+      <div class="product-meta__reference" id="yotpoReviewsProduct">
+        <div class="estrellasYotpoCategory">
+          <div class="yotpo bottomLine"
+            data-product-id="{{ product.id }}"
+            data-url="{{ shop.url }}{{ product.url }}">
+          </div>
+        </div>
+      </div>
+
+      {%- if section.settings.show_share_buttons -%}
+        <div class="product-meta__share-buttons hidden-phone">
+          {{ share_buttons }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <hr class="card__separator">
+
+    {%- if request.page_type == 'index' and section.settings.show_description and product.description != blank and section.settings.description_below_add_to_cart == false -%}
+      <div class="product-meta__description rte">
+        {{ product.description | remove: 'data-section-type="product"' }}
+      </div>
+    {%- endif -%}
+
+    {% comment %}
+    ------------------------------------------------------------------------------
+    PRODUCT FORM
+    ------------------------------------------------------------------------------
+    {% endcomment %}
+
+    {%- assign color_label = 'color,colour,couleur,cor,colore,farbe,색,色,カラー,färg,farve' | split: ',' -%}
+
+    {%- form 'product', product, class: 'product-form' -%}
+      {%- unless product.has_only_default_variant -%}
+        <div class="product-form__variants">
+          {%- for option in product.options_with_values -%}
+            {%- assign downcase_option = option.name | downcase -%}
+            {%- capture option_name -%}{{ section.id }}-{{ product.id }}-{{ forloop.index }}{%- endcapture -%}
+
+            {%- assign option_selector_type = 'select' -%}
+
+            {%- if section.settings.color_mode != 'block' and section.settings.color_mode != 'dropdown' and color_label contains downcase_option -%}
+              {%- comment -%}NOTE: even if the merchant is using the mode to display variant images, if ALL variant do not have an associated image, we fallback to color{%- endcomment -%}
+
+              {%- assign has_image_attached_to_all_variants = true -%}
+
+              {%- for variant in product.variants -%}
+                {%- unless variant.image -%}
+                  {%- assign has_image_attached_to_all_variants = false -%}
+                  {%- break -%}
+                {%- endunless -%}
+              {%- endfor -%}
+
+              {%- if section.settings.color_mode == 'color' or has_image_attached_to_all_variants == false -%}
+                {%- assign option_selector_type = 'color' -%}
+              {%- else -%}
+                {%- assign option_selector_type = 'variant' -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- if color_label contains downcase_option -%}
+                {%- if section.settings.color_mode == 'block' -%}
+                  {%- assign option_selector_type = 'block' -%}
+                {%- endif -%}
+              {%- elsif section.settings.selector_mode == 'block' -%}
+                {%- assign option_selector_type = 'block' -%}
+              {%- endif -%}
+            {%- endif -%}
+
+            <div class="product-form__option" data-selector-type="{{ option_selector_type }}">
+              {%- case option_selector_type -%}
+                {%- when 'color' -%}
+                  <span class="product-form__option-name text--strong">{{ option.name }}: <span class="product-form__selected-value">{{ option.selected_value }}</span></span>
+
+                  <div class="color-swatch-list color-swatch-list--large">
+                    {%- for value in option.values -%}
+                      {%- assign downcased_value = value | downcase -%}
+                      {%- capture color_id -%}{{ option_name }}-{{ forloop.index }}{%- endcapture -%}
+
+                      {%- assign color_swatch_name = value | handle | append: '.png' -%}
+                      {%- assign color_swatch_image = images[color_swatch_name] -%}
+
+                      <div class="color-swatch {% if downcased_value == 'white' or downcased_value == 'blanc' %}color-swatch--white{% endif %}">
+                        <input class="color-swatch__radio product-form__single-selector" type="radio" name="{{ option_name }}" id="{{ color_id }}" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %} data-option-position="{{ option.position }}" aria-hidden="true">
+                        <label class="color-swatch__item lazyload" for="{{ color_id }}" {% if color_swatch_image != blank %}data-bg="{{ color_swatch_image | img_url: '64x64' }}"{% else %}style="background-color: {{ value | replace: ' ', '' | downcase }}"{% endif %} title="{{ value | escape }}">{% render 'icon', icon: 'cross-sold-out' %}</label>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- when 'variant' -%}
+                  <span class="product-form__option-name text--strong">{{ option.name }}: <span class="product-form__selected-value">{{ option.selected_value }}</span></span>
+
+                  <div class="variant-swatch-list">
+                    {%- capture option_name -%}option{{ option.position }}{%- endcapture -%}
+
+                    {%- for value in option.values -%}
+                      {%- capture variant_swatch_id -%}{{ option_name }}-{{ forloop.index }}{%- endcapture -%}
+
+                      {%- for variant in product.variants -%}
+                        {%- if variant[option_name] == value and variant.image -%}
+                          <div class="variant-swatch">
+                            <input class="variant-swatch__radio product-form__single-selector" type="radio" name="{{ option_name }}" id="{{ variant_swatch_id }}" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %} data-option-position="{{ option.position }}">
+
+                            <label class="variant-swatch__item" for="{{ variant_swatch_id }}" title="{{ value | escape }}">
+                              <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: variant.image.aspect_ratio }}%">
+                                <img src="{{ variant.image | img_url: '120x' }}" alt="{{ variant.image.alt | escape }}">
+                              </div>
+
+                              {% render 'icon', icon: 'cross-sold-out' %}
+                            </label>
+                          </div>
+
+                          {%- break -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                    {%- endfor -%}
+                  </div>
+                {%- when 'block' -%}
+                  <span class="product-form__option-name text--strong">{{ option.name }}: <span class="product-form__selected-value">{{ option.selected_value }}</span></span>
+
+                  <div class="block-swatch-list">
+                    {%- for value in option.values -%}
+                      {%- capture block_swatch_id -%}{{ option_name }}-{{ forloop.index }}{%- endcapture -%}
+
+                      <div class="block-swatch">
+                        <input class="block-swatch__radio product-form__single-selector" type="radio" name="{{ option_name }}" id="{{ block_swatch_id }}" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %} data-option-position="{{ option.position }}" aria-hidden="true">
+                        <label class="block-swatch__item" for="{{ block_swatch_id }}" title="{{ value | escape }}">
+                          <span class="block-swatch__item-text">{{ value }}</span>
+                        </label>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- when 'select' -%}
+                  <label for="{{ option_name }}" class="product-form__option-name text--strong">{{ option.name }}: <span class="product-form__selected-value">{{ option.selected_value }}</span></label>
+
+                  <div class="select-wrapper select-wrapper--primary">
+                    {%- render 'icon', icon: 'arrow-bottom' -%}
+
+                    <select class="product-form__single-selector" name="{{ option_name }}" id="{{ option_name }}" data-option-position="{{ option.position }}">
+                      {%- for value in option.values -%}
+                        <option value="{{ value | escape }}" {% if value == option.selected_value %}selected="selected"{% endif %}>{{ value }}</option>
+                      {%- endfor -%}
+                    </select>
+                  </div>
+              {%- endcase -%}
+            </div>
+          {%- endfor -%}
+
+          <div class="no-js product-form__option">
+            <label for="product-select-{{ product.id }}">{{ 'product.form.variant' | t }}</label>
+
+            <div class="select-wrapper select-wrapper--primary">
+              <select id="product-select-{{ product.id }}" name="id">
+                {%- for variant in product.variants -%}
+                  <option {% if variant == selected_variant %}selected="selected"{% endif %} {% unless variant.available %}disabled="disabled"{% endunless %} value="{{ variant.id }}" data-sku="{{ variant.sku }}">{{ variant.title }} - {{ variant.price | money }}</option>
+                {%- endfor -%}
+              </select>
+            </div>
+          </div>
+        </div>
+      {%- else -%}
+        <input type="hidden" name="id" data-sku="{{ selected_variant.sku }}" value="{{ selected_variant.id }}">
+      {%- endunless -%}
+       
+
+      <div class="product-form__info-list">
+        <div class="product-form__info-item">
+          <span class="product-form__info-title text--strong">{{ 'product.form.price' | t }}:</span>
+          <div class="product-form__info-content">
+            
+            <div class="price-list">
+              {%- if selected_variant.compare_at_price > selected_variant.price -%}
+                <span class="price price--highlight">{{ selected_variant.price | money_without_trailing_zeros }}</span>
+                <span class="price price--compare">{{ selected_variant.compare_at_price | money_without_trailing_zeros }}</span>
+              {%- else -%}
+                <span class="price">{{ selected_variant.price | money_without_trailing_zeros }}</span>
+              {%- endif -%}
+            </div>
+
+            <div class="product-form__price-info" style="display: {% if selected_variant.unit_price_measurement %}block{% else %}none{% endif %}">
+              <div class="unit-price-measurement">
+                <span class="unit-price-measurement__price">{{ selected_variant.unit_price | money_without_trailing_zeros }}</span>
+                <span class="unit-price-measurement__separator">/ </span>
+
+                {%- if selected_variant.unit_price_measurement.reference_value != 1 -%}
+                  <span class="unit-price-measurement__reference-value">{{ selected_variant.unit_price_measurement.reference_value }}</span>
+                {%- endif -%}
+
+                <span class="unit-price-measurement__reference-unit">{{ selected_variant.unit_price_measurement.reference_unit }}</span>
+              </div>
+            </div>
+
+            {%- if section.settings.show_taxes_included -%}
+              {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
+                <p class="product-form__price-info">
+                  {%- if shop.taxes_included -%}
+                    {{ 'product.general.include_taxes' | t }}
+                  {%- endif -%}
+
+                  {%- if shop.shipping_policy.body != blank -%}
+                    {{ 'product.general.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        </div>
+        
+     </div>
+    
+    <div class="kp-product" style="
+          margin-top: -22px;
+          margin-bottom: 20px;">
+      <div class="">
+        {% render 'kp-product-page-snippet.liquid' %}
+      </div>          
+    </div>
+        
+       
+	<div class="product-form__info-list">	
+      	{%- comment -%} //***** Nueva Seccion Stock Info ********// {%-endcomment-%}
+          {%- if section.settings.show_inventory_quantity and product.template_suffix != 'pre-order' -%}
+              {%- comment -%} Primero Comprobamos que exista stock en el producto {%-endcomment-%}
+              {%- if selected_variant.available -%}
+                  {%- if selected_variant.inventory_quantity <= section.settings.low_inventory_threshold and selected_variant.inventory_quantity > 0 -%}
+                      <div class="product-form__info-item">
+                          <span class="product-form__info-title text--strong">{{ 'product.form.inventory' | t }}:</span>
+                          <div class="product-form__info-content">                          
+                            <span class="product-form__inventory inventory inventory--low">{{ 'product.form.low_stock_with_quantity_count' | t: count: selected_variant.inventory_quantity }}</span>	
+                          </div>
+                      </div>                    
+      			  {%- else -%}
+      				  <div style="display:none" class="product-form__info-item">
+                          <span class="product-form__info-title text--strong">{{ 'product.form.inventory' | t }}:</span>
+                          <div class="product-form__info-content">                          
+                            <span class="product-form__inventory inventory inventory--low">{{ 'product.form.low_stock_with_quantity_count' | t: count: selected_variant.inventory_quantity }}</span>	
+                          </div>
+                      </div>
+      			  {%- endif -%}	
+              {%- else -%}
+                  <div class="product-form__info-item">
+                      <span class="product-form__info-title text--strong">{{ 'product.form.inventory' | t }}:</span>
+                      <div class="product-form__info-content">
+                        <span class="product-form__inventory inventory">{{ 'product.form.sold_out' | t }}</span>
+                      </div>
+                  </div>
+              {%- endif -%}
+          {%- endif -%}      
+      	{%- comment -%} //***** Nueva Seccion Stock Info ********// {%-endcomment-%}
+
+        {%- if product.template_suffix != 'contact' -%}
+          {%- if section.settings.show_quantity_selector -%}
+            <div class="product-form__info-item product-form__info-item--quantity">
+              <label for="{{ section.id }}-{{ product.id }}-quantity" class="product-form__info-title text--strong">{{ 'product.form.quantity' | t }}:</label>
+
+              <div class="product-form__info-content">
+                <div class="select-wrapper select-wrapper--small select-wrapper--primary">
+                  {%- render 'icon', icon: 'arrow-bottom' -%}
+
+                  <select name="quantity" id="{{ section.id }}-{{ product.id }}-quantity" class="product-form__quantity">
+                    {%- for i in (1..10) -%}
+                      <option value="{{ i }}" {% if forloop.first %}selected="selected"{% endif %}>{% if i < 10 %}{{ i }}{% else %}{{ i }}+{% endif %}</option>
+                    {%- endfor -%}
+                  </select>
+                </div>
+              </div>
+            </div>
+          {%- else -%}
+            <input type="hidden" name="quantity" value="1">
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+
+      
+        
+      
+
+      <div class="product-form__payment-container">
+        {%- if product.template_suffix != 'contact' -%}
+          {%- if selected_variant.available -%}
+            {%- if product.template_suffix == 'pre-order' -%}
+              <button type="submit" class="product-form__add-button button button--primary" data-action="add-to-cart">{{ 'product.form.pre_order' | t }}</button>
+            {%- else -%}
+              <button type="submit" class="product-form__add-button button button--primary" data-action="add-to-cart">{{ 'product.form.add_to_cart' | t }}</button>
+            {%- endif -%}
+          {%- else -%}
+            <button type="submit" class="product-form__add-button button button--disabled" disabled>{{ 'product.form.sold_out' | t }}</button>
+          {%- endif -%}
+
+          {%- if section.settings.show_payment_button -%}
+            {{ form | payment_button }}
+          {%- endif -%}
+        {%- else -%}
+          <a href="mailto:{{ shop.email }}" class="button button--primary">{{ 'product.form.contact_us' | t }}</a>
+        {%- endif -%}
+      </div>
+
+      {% if settings.cta_asesoria != "" %}
+        {% assign html_asesoria = settings.cta_asesoria %}
+        <div class="product-form__info-item" id="tituloStock">
+          <div class="product-form__info-content">
+            {{html_asesoria}}
+          </div>
+        </div>
+      {% endif %}
+      
+    {%- endform -%}
+
+    {%- if request.page_type == 'index' and section.settings.show_description and product.description != blank and section.settings.description_below_add_to_cart -%}
+      <div class="product-meta__description rte">
+        {{ product.description }}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_share_buttons -%}
+      <div class="product-meta__share-buttons hidden-tablet-and-up">
+        <span class="text--strong">{{ 'product.general.share' | t }}</span>
+        {{ share_buttons }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if section.settings.show_payment_button and product.selected_or_first_available_variant.available == false -%}
+    <style>
+      #shopify-section-{{ section.id }} .shopify-payment-button {
+        display: none;
+      }
+    </style>
+  {%- endif -%}
+
+  {% comment %}
+  ------------------------------------------------------------------------------
+  Product Data. This must be outputted for all products (including home page).
+
+  IMPORTANT: THIS CODE IS VITAL. DO NOT EDIT IT NOT REMOVE IT. MAKE SURE TO KEEP
+  THE EXACT SAME ATTRIBUTES.
+  ------------------------------------------------------------------------------
+  {% endcomment %}
+
+  <script type="application/json" data-product-json>
+    {
+      "product": {{ product | json }},
+      "options_with_values": {{ product.options_with_values | json }},
+      "selected_variant_id": {{ selected_variant.id }}
+      
+      {%- if section.settings.show_inventory_quantity -%}
+        ,"inventories": {
+          {%- for variant in product.variants -%}
+            {%- if variant.available -%}
+              {%- if variant.inventory_management and variant.inventory_policy == 'deny' and section.settings.low_inventory_threshold > 0 -%}
+                {%- if variant.inventory_quantity <= section.settings.low_inventory_threshold -%}
+                  {%- capture inventory_message -%}{{ 'product.form.low_stock_with_quantity_count' | t: count: variant.inventory_quantity }}{%- endcapture -%}
+                {%- else -%}
+                  {%- capture inventory_message -%}{{ 'product.form.in_stock_with_quantity_count' | t: count: variant.inventory_quantity }}{%- endcapture -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- if variant.inventory_policy == 'continue' and variant.inventory_quantity <= 0 -%}
+                  {%- capture inventory_message -%}{{ 'product.form.oversell_stock' | t }}{%- endcapture -%}
+                {%- else %}
+                  {%- capture inventory_message -%}{{ 'product.form.in_stock' | t }}{%- endcapture -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- capture inventory_message -%}{{ 'product.form.sold_out' | t }}{%- endcapture -%}
+            {%- endif -%}
+
+            "{{ variant.id }}": {
+              "inventory_management": {{ variant.inventory_management | json }},
+              "inventory_policy": {{ variant.inventory_policy | json }},
+              "inventory_quantity": {{ variant.inventory_quantity | json }},
+              "inventory_message": {{ inventory_message | json }}
+            }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        }
+      {%- endif -%}
+      
+    }
+  </script>
+</div>
+

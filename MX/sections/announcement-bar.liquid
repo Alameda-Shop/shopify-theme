@@ -1,0 +1,275 @@
+{%- if section.settings.show_announcement -%}
+  {%- capture section_settings -%}
+  {
+    "showNewsletter": {{ section.settings.show_newsletter | json }}
+  }
+  {%- endcapture -%}
+
+  <section data-section-id="{{ section.id }}" data-section-type="announcement-bar" data-section-settings='{{ section_settings }}'>
+    {%- if section.settings.show_newsletter -%}
+      <div id="announcement-bar-newsletter" class="announcement-bar__newsletter hidden-phone" aria-hidden="true">
+        <div class="container">
+          <div class="announcement-bar__close-container">
+            <button class="announcement-bar__close" data-action="toggle-newsletter">{% render 'icon', icon: 'close' %}</button>
+          </div>
+        </div>
+
+        <div class="container container--extra-narrow">
+          <div class="announcement-bar__newsletter-inner">
+            {%- if section.settings.newsletter_title != blank -%}
+              <h2 class="heading h1">{{ section.settings.newsletter_title | escape }}</h2>
+            {%- endif -%}
+
+            {%- if section.settings.newsletter_content != blank -%}
+              <div class="rte">
+                {{ section.settings.newsletter_content }}
+              </div>
+            {%- endif -%}
+
+            {%- assign newsletter_id = 'newsletter-' | append: section.id -%}
+
+            <div class="newsletter">
+              {%- form 'customer', id: newsletter_id, class: 'form newsletter__form' -%}
+                {%- if form.posted_successfully? -%}
+                  <p class="alert alert--success alert--center">{{ 'home_page.newsletter.success' | t }}</p>
+                  {%- if form.context == 'announcement-bar' -%}
+                    {%- assign open_announcement = true -%}
+                  {%- endif -%}
+                {%- else -%}
+                  {%- if form.errors -%}
+                    <p class="alert alert--error">{{ form.errors.messages['email'] }}</p>
+                  {%- endif -%}
+
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <input type="hidden" name="contact[context]" value="announcement-bar">
+
+                  <div class="form__input-row">
+                    <div class="form__input-wrapper form__input-wrapper--labelled">
+                      <input type="email" id="announcement[contact][email]" name="contact[email]" class="form__field form__field--text" autofocus required>
+                      <label for="announcement[contact][email]" class="form__floating-label">{{ 'home_page.newsletter.input' | t }}</label>
+                    </div>
+
+                    <button type="submit" class="form__submit button button--primary">{{ 'home_page.newsletter.submit' | t }}</button>
+                  </div>
+                {%- endif -%}
+              {%- endform -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    <div class="announcement-bar">
+      <div class="container">
+        <div class="announcement-bar__inner">
+          {%- if section.settings.link != blank -%}
+            <a style="margin-right: 20px;" href="{{ section.settings.link }}" class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">{{ section.settings.text | escape }}</a>
+            <a href="https://ayudaalameda.zendesk.com/hc/es" class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">Centro de ayuda</a>
+          {%- else -%}
+            <p class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">{{ section.settings.text | escape }}</p>
+          {%- endif -%}
+
+          {%- if section.settings.show_newsletter -%}
+            <button type="button" class="announcement-bar__button hidden-phone" data-action="toggle-newsletter" aria-expanded="false" aria-controls="announcement-bar-newsletter">
+              {%- render 'icon', icon: 'newsletter' -%}
+              {{- section.settings.newsletter_button | escape -}}
+            </button>
+          {%- endif -%}
+
+          <ul class="superHeader-derecho">
+            <li>
+              <a href="https://www.alameda.mx/collections/showroom-reforma">
+                <i><svg style="width: 9px;" version="1.0" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  viewBox="0 0 8.44 12" style="enable-background:new 0 0 8.44 12;" xml:space="preserve">
+               <path style="fill:#585752;" d="M4.22,0C1.89,0,0,1.89,0,4.22C0,5,0.22,5.77,0.63,6.44l3.35,5.4C4.04,11.94,4.16,12,4.28,12h0
+                 c0.12,0,0.23-0.07,0.3-0.17l3.26-5.45c0.39-0.65,0.59-1.4,0.59-2.16C8.44,1.89,6.54,0,4.22,0 M7.24,6.02l-2.97,4.95L1.23,6.07
+                 C0.89,5.51,0.7,4.87,0.7,4.22c0-1.94,1.58-3.52,3.52-3.52c1.94,0,3.52,1.58,3.52,3.52C7.74,4.85,7.56,5.48,7.24,6.02"/>
+               <path style="fill:#585752;" d="M4.22,2.11c-1.16,0-2.11,0.95-2.11,2.11c0,1.16,0.93,2.11,2.11,2.11c1.19,0,2.11-0.97,2.11-2.11
+                 C6.33,3.06,5.38,2.11,4.22,2.11 M4.22,5.63C3.44,5.63,2.81,5,2.81,4.22c0-0.78,0.64-1.41,1.41-1.41c0.77,0,1.41,0.64,1.41,1.41
+                 C5.63,4.98,5.01,5.63,4.22,5.63"/>
+               </svg></i>
+                <span>Tienda</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.alameda.mx/pages/alameda-estudio-profesionales">
+                <i><svg style="width: 15px;" version="1.0" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  viewBox="0 0 14.01 14" style="enable-background:new 0 0 14.01 14;" xml:space="preserve">
+               <path style="fill:#585752;" d="M12.84,2.33h-0.71l0.46-0.46c0,0,0,0,0,0c0.34-0.34,0.34-0.88,0-1.22l-0.4-0.4
+                 c-0.34-0.33-0.88-0.33-1.22,0L8.88,2.33H2.04c-0.48,0-0.88,0.39-0.88,0.88v2.13L0.08,6.41c-0.11,0.11-0.11,0.3,0,0.41l1.08,1.08
+                 v2.88c0,0.48,0.39,0.88,0.88,0.88h2.88l2.25,2.25C7.23,13.97,7.3,14,7.38,14c0.08,0,0.15-0.03,0.21-0.09l1.67-1.67
+                 c0.11-0.11,0.11-0.3,0-0.41l-0.17-0.17h2.59v1.46c0,0.16,0.13,0.29,0.29,0.29h0.88c0.64,0,1.17-0.52,1.17-1.17V3.49
+                 C14.01,2.85,13.49,2.33,12.84,2.33 M11.38,0.66c0.11-0.11,0.28-0.11,0.39,0l0.4,0.4c0.11,0.11,0.11,0.29,0,0.39L7.94,5.69l-0.8-0.8
+                 L11.38,0.66z M6.86,5.43L7.4,5.97L6.59,6.24L6.86,5.43z M2.04,11.08c-0.16,0-0.29-0.13-0.29-0.29v-2.3l2.59,2.59H2.04z M7.38,13.3
+                 L0.7,6.62l1.26-1.25l0.8,0.8L2.13,6.79L2.54,7.2l0.63-0.63l0.76,0.75L3.3,7.96l0.41,0.41l0.63-0.63L5.09,8.5L4.46,9.12l0.41,0.41
+                 L5.5,8.91l0.76,0.75l-0.63,0.63l0.41,0.41l0.63-0.63l0.76,0.76L6.8,11.46l0.41,0.41l0.63-0.63l0.8,0.8L7.38,13.3z M8.5,11.08
+                 L2.17,4.75c-0.11-0.11-0.3-0.11-0.41,0l0,0V3.2c0-0.16,0.13-0.29,0.29-0.29H8.3L6.53,4.68C6.49,4.72,6.47,4.75,6.46,4.8l-0.6,1.81
+                 C5.84,6.64,5.84,6.67,5.84,6.7C5.84,6.87,5.97,7,6.13,7h4.38V6.41H7.93l0.11-0.04v0c0.04-0.01,0.08-0.04,0.12-0.07l3.39-3.4h1.3
+                 c0.32,0,0.58,0.26,0.58,0.58v7.74c-0.17-0.1-0.37-0.16-0.58-0.16H8.5z M12.84,12.83h-0.58v-1.17h0.58c0.32,0,0.58,0.26,0.58,0.58
+                 C13.42,12.57,13.16,12.83,12.84,12.83"/>
+               <rect x="11.09" y="6.41" style="fill:#585752;" width="0.58" height="0.58"/>
+               <rect x="12.26" y="6.41" style="fill:#585752;" width="0.58" height="0.58"/>
+               </svg>
+               </i>
+                <span>Diseña tu Negocio</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.alameda.mx/pages/alameda-estudio-personales">
+                <i><svg style="width: 14px;" version="1.0" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  viewBox="0 0 14.57 14.57" style="enable-background:new 0 0 14.57 14.57;" xml:space="preserve">
+               <path style="fill:#585752;" d="M10.47,4.52c0.07,0,0.15-0.03,0.2-0.08c0.05-0.05,0.08-0.13,0.08-0.2s-0.03-0.15-0.08-0.2
+                 c-0.05-0.05-0.13-0.08-0.2-0.08c-0.07,0-0.15,0.03-0.2,0.08c-0.05,0.05-0.08,0.13-0.08,0.2s0.03,0.15,0.08,0.2
+                 C10.32,4.49,10.4,4.52,10.47,4.52"/>
+               <path style="fill:#585752;" d="M4.27,8.02H1.99c-0.16,0-0.28,0.13-0.28,0.28v2.28c0,0.16,0.13,0.28,0.28,0.28h2.28
+                 c0.16,0,0.29-0.13,0.29-0.28V8.31C4.55,8.15,4.42,8.02,4.27,8.02 M3.98,10.3H2.28V8.59h1.71V10.3z"/>
+               <path style="fill:#585752;" d="M14.39,5.97c-0.11-0.04-0.23-0.02-0.31,0.06l-2.9,2.9h0L7.8,12.31l-1.77,1.77
+                 c-0.08,0.08-0.11,0.2-0.06,0.31c0.04,0.11,0.15,0.18,0.26,0.18h8.05c0.16,0,0.28-0.13,0.28-0.28V6.23
+                 C14.57,6.12,14.5,6.01,14.39,5.97 M14,14H6.92L8,12.91l0.27,0.27c0.06,0.06,0.13,0.08,0.2,0.08s0.15-0.03,0.2-0.08
+                 c0.11-0.11,0.11-0.29,0-0.4l-0.27-0.27l0.72-0.73l0.27,0.27c0.06,0.06,0.13,0.08,0.2,0.08c0.07,0,0.15-0.03,0.2-0.08
+                 c0.11-0.11,0.11-0.29,0-0.4l-0.27-0.27l0.72-0.72l0.27,0.27c0.06,0.06,0.13,0.08,0.2,0.08s0.15-0.03,0.2-0.08
+                 c0.11-0.11,0.11-0.29,0-0.4l-0.27-0.27l0.72-0.72l0.27,0.27c0.05,0.05,0.13,0.08,0.2,0.08s0.15-0.03,0.2-0.08
+                 c0.11-0.11,0.11-0.29,0-0.4l-0.27-0.27l0.72-0.72l0.27,0.27c0.06,0.05,0.13,0.08,0.2,0.08c0.07,0,0.15-0.03,0.2-0.08
+                 c0.11-0.11,0.11-0.29,0-0.4L12.91,8L14,6.92V14z"/>
+               <path style="fill:#585752;" d="M12.97,9.4c-0.11-0.04-0.23-0.02-0.31,0.06l-3.2,3.19c-0.08,0.08-0.11,0.2-0.06,0.31
+                 c0.04,0.11,0.15,0.18,0.26,0.18h3.19c0.16,0,0.28-0.13,0.28-0.28v-3.2C13.15,9.55,13.08,9.45,12.97,9.4 M12.58,12.58h-2.22
+                 l2.22-2.22V12.58z"/>
+               <path style="fill:#585752;" d="M5.67,12.91c0.3,0,0.59-0.11,0.82-0.34l2.4-2.4C9,10.06,9,9.88,8.89,9.77c-0.11-0.11-0.29-0.11-0.4,0
+                 l-1.82,1.82l-0.83-0.83l5.2-5.2l0.83,0.83L9.88,8.37c-0.11,0.11-0.11,0.29,0,0.4c0.11,0.11,0.29,0.11,0.4,0l2.18-2.18
+                 c0.03-0.03,0.05-0.06,0.07-0.1l0.71-1.94c0.04-0.1,0.01-0.22-0.07-0.3c-0.08-0.08-0.19-0.1-0.3-0.07l-1.94,0.71
+                 c-0.04,0.01-0.07,0.04-0.1,0.07l-0.55,0.55L6.72,1.94c-0.05-0.05-0.13-0.08-0.2-0.08c-0.07,0-0.15,0.03-0.2,0.08L2.02,6.23H0.97
+                 l5.54-5.54l3.04,3.04c0.11,0.11,0.29,0.11,0.4,0c0.11-0.11,0.11-0.29,0-0.4L6.72,0.08c-0.11-0.11-0.29-0.11-0.4,0L0.08,6.32
+                 C0,6.4-0.02,6.52,0.02,6.63C0.07,6.73,0.17,6.8,0.28,6.8h0.28v7.48c0,0.16,0.13,0.28,0.29,0.28h4.52c0.16,0,0.28-0.13,0.28-0.28
+                 S5.53,14,5.38,14H1.14V6.8h1c0.07,0,0.15-0.03,0.2-0.08l4.18-4.18l3.37,3.37l-4.22,4.22V7.57h1.99c0.16,0,0.28-0.13,0.28-0.29
+                 S7.81,7,7.65,7H5.38C5.22,7,5.09,7.13,5.09,7.28v3.3c0,0.03,0.01,0.07,0.02,0.09l-0.26,0.26c-0.45,0.45-0.45,1.18,0,1.63
+                 C5.08,12.79,5.37,12.91,5.67,12.91 M12.15,5.87l-0.6-0.59l0.94-0.34L12.15,5.87z M5.26,11.34l0.18-0.18l0.83,0.83l-0.18,0.18
+                 c-0.11,0.11-0.26,0.17-0.42,0.17c-0.16,0-0.3-0.06-0.41-0.17c-0.11-0.11-0.17-0.26-0.17-0.41C5.08,11.6,5.15,11.45,5.26,11.34"/>
+               <path style="fill:#585752;" d="M9.18,9.07C9.12,9.13,9.09,9.2,9.09,9.28s0.03,0.15,0.08,0.2c0.05,0.05,0.13,0.08,0.2,0.08
+                 s0.15-0.03,0.2-0.08c0.05-0.05,0.08-0.13,0.08-0.2s-0.03-0.15-0.08-0.2c-0.05-0.05-0.13-0.08-0.2-0.08S9.23,9.02,9.18,9.07"/>
+               <path style="fill:#585752;" d="M7.6,5.38c0-0.6-0.48-1.08-1.08-1.08c-0.6,0-1.08,0.49-1.08,1.08c0,0.6,0.48,1.08,1.08,1.08
+                 C7.11,6.46,7.6,5.97,7.6,5.38 M6,5.38C6,5.1,6.23,4.87,6.52,4.87c0.28,0,0.51,0.23,0.51,0.51c0,0.28-0.23,0.51-0.51,0.51
+                 C6.23,5.89,6,5.66,6,5.38"/>
+               </svg>
+               </i>
+                <span>Diseña tu Hogar</span>
+              </a>
+            </li>
+            <li class="rastrearPedido">
+              <a href="/account">
+                <i  ></i>
+                <span>Rastrear mi pedido</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .announcement-bar {
+      background: {{ section.settings.background }};
+      color: {{ section.settings.text_color }};
+    }
+  </style>
+
+  <script>
+    {%- if section.settings.show_newsletter -%}
+      document.documentElement.style.setProperty('--announcement-bar-button-width', document.querySelector('.announcement-bar__button').clientWidth + 'px');
+    {%- else -%}
+      document.documentElement.style.removeProperty('--announcement-bar-button-width');
+    {%- endif -%}
+
+    document.documentElement.style.setProperty('--announcement-bar-height', document.getElementById('shopify-section-{{ section.id }}').clientHeight + 'px');
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#1e2d7d"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Announce something here"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "left",
+      "info": "Text is always centered on mobile."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Newsletter"
+    },
+    {
+      "type": "paragraph",
+      "content": "Customers who subscribe will have their email address added to the \"accepts marketing\" [customer list](/admin/customers?query=&accepts_marketing=1)."
+    },
+    {
+      "type": "paragraph",
+      "content": "Only visible on desktop."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": "Show sign up form",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "newsletter_button",
+      "label": "Open button",
+      "default": "Subscribe & Save"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "Heading",
+      "default": "Newsletter"
+    },
+    {
+      "type": "richtext",
+      "id": "newsletter_content",
+      "label": "Text",
+      "default": "<p>A short sentence describing what someone will receive by subscribing</p>"
+    }
+  ]
+}
+{% endschema %}

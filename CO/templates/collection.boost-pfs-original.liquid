@@ -1,0 +1,24 @@
+{% section 'collection-template-boost-pfs-original' %}
+{% section 'static-promotion-list' %}
+{% section 'static-recently-viewed-products' %}
+{% include 'nosto-element' with 'categorypage-nosto-2' %}
+
+{%- comment -%}
+<!-- Kwanko : Category retargeting tracker Jeferson Moreno -- 04/11/2019 -->
+<script type="text/javascript" src="https://img.metaffiliation.com/u/29/p68007.js"></script>
+<script type="text/javascript">
+var products = [];
+        {% for product in collection.products %}
+        products.push({{ product.id }});
+        {% endfor %}
+        
+window.ptag_params = {
+zone: "listing",
+categoryId: "{{ collection.id }}",
+products: products,
+siteType: "d",
+m_md5: "{{ customer.email }}",
+customerId: "{{ customer.id }}"
+};   
+</script>
+{%- endcomment -%} 
