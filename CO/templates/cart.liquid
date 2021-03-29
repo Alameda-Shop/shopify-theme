@@ -1,0 +1,39 @@
+{% section 'cart-template' %}
+
+{%- if cart.item_count > 0 -%}
+  {% section 'static-recently-viewed-products' %}
+{%- endif -%}
+
+<div class="container container--flush">
+  
+  
+</div>
+
+{%- comment -%}
+<!-- Kwanko : Basket retargeting tracker Jeferson Moreno -- 04/11/2019 -->
+<script type="text/javascript" src="https://img.metaffiliation.com/u/29/p68007.js"></script>
+<script type="text/javascript">
+var products = [];
+        {% for item in cart.items %}
+        products.push ({
+          id: "{{ item.product_id }}",
+          price: {{ item.price | divided_by: 100 }},
+          quantity: {{ item.quantity }}
+        });
+        {% endfor %}
+
+window.ptag_params = {
+zone: "basket",
+products: products,
+currency: "{{ shop.currency }}",
+customerId: "{{ customer.id }}",
+siteType: "d",
+m_md5: "{{ customer.email }}"
+};
+</script>
+{%- endcomment -%}
+{% include 'nosto-element' with 'cartpage-nosto-1' %}
+
+{% include 'nosto-element' with 'cartpage-nosto-2' %}
+
+{% include 'nosto-element' with 'cartpage-nosto-3' %}

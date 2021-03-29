@@ -1,0 +1,17 @@
+<!-- Trigger/Open The Modal -->
+{% assign precioProducto = product.price %}
+<div id="kueski-pay-ppd-message"
+     data-kueskipay-class="Product"
+     data-kueskipay-location="Product Page"
+     data-kueskipay-product-name="{{ product.title }}"
+     data-kueskipay-merchant-name="{{ shop.name }}"
+     data-kueskipay-purchase-value="{{precioProducto}}"
+     data-kueskipay-api-key="4f61b108-a567-482f-b368-1621a79e65d4"
+     data-kueskipay-max-installments="4"
+     data-kueskipay-max-amount="600000"  
+>
+</div>
+<link rel="stylesheet" href="https://cdn.kueskipay.com/v1/assets/plugin/kp-product-page.min.css">
+<script src="https://cdn.kueskipay.com/v1/assets/plugin/moment.min.js"></script>
+<script src="https://cdn.kueskipay.com/v1/assets/plugin/bi-winstallmentsjs.js" charset="utf-8"></script>
+<script src="https://cdn.kueskipay.com/v1/assets/plugin/kp-product-page.js" charset="utf-8"></script>

@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0">
+
+    <title>{{ page_title }} 2.0</title>
+
+    {{ content_for_header }}
+
+    {{ checkout_stylesheets }}
+    {{ checkout_scripts }}
+    <!--<style>
+      [data-address-field="country"] {
+        /* Attribute value contains this value somewhere in it */
+        display:none;
+      }
+    </style>-->
+  </head>
+  <body>   
+   
+    {{ skip_to_content_link }}
+    
+    <div class="banner" data-header>
+      <div class="wrap">
+        {{ content_for_logo }}
+      </div>
+    </div>
+
+    {{ order_summary_toggle }}
+
+     <div class="content" data-content>
+      <div class="wrap">
+        <div class="main" role="main">
+          <div class="main__header">                        
+            {{ content_for_logo }}
+            {{ breadcrumb }}
+            {{ alternative_payment_methods }}            
+          </div>
+          <div class="main__content">
+            {{ content_for_layout }}                        
+          </div>
+          <div class="main__footer">
+            {{ content_for_footer }}
+          </div>
+        </div>
+        <div class="sidebar" role="complementary">
+          <div class="sidebar__header">
+            {{ content_for_logo }}
+          </div>
+          <div class="sidebar__content">
+            {{ content_for_order_summary }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{ tracking_code }}
+
+   <!-- Google Tag Manager (noscript) -->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FR3ZKW"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
+	<!-- End Google Tag Manager (noscript) --> 
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.0/jquery.min.js" integrity="sha512-K7Zj7PGsHk2fpY3Jwvbuo9nKc541MofFrrLaUUO9zqghnJxbZ3Zn35W/ZeXvbT2RtSujxGbw8PgkqpoZXXbGhw==" crossorigin="anonymous"></script>
+    
+    <!--<script>       
+      	document.getElementById("checkout_shipping_address_company").maxLength = "40";
+        document.getElementById("checkout_shipping_address_phone").maxLength = "12"; 
+      	document.getElementById("checkout_shipping_address_address1").maxLength = "20"; 
+      
+      	var telefono = document.getElementById("checkout_shipping_address_phone");
+      	
+      	telefono.addEventListener("keyup",function(){
+          telefono.value = telefono.value.trim();          
+        })  
+        
+        /****************** quitar acentos de checkout para envio de quickBase ***********************/
+      var wrapName = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(11)");
+      wrapName.append("<input id='first_name' onchange='RemoveAccents(event)' style='width:100%' class='inputNumber field__input first_name_input' name='' value='' placeholder='Nombre(s)' />");
+      wrapName.find(".field__input-wrapper").css("display","none")    
+
+      var wrapLastName = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(12)");
+      wrapLastName.append("<input id='last_name' onchange='RemoveAccents(event)' style='width:100%' class=' field__input' name='' value='' placeholder='Apellido(s)' />");
+      wrapLastName.find(".field__input-wrapper").css("display","none") 
+
+      var wrapAddress = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(13)");
+      wrapAddress.append("<input id='complete-address' onchange='RemoveAccents(event)' style='width:100%' class=' field__input' name='' value='' placeholder='Dirección (Calle, #Exterior, #Interior' />");
+      wrapAddress.find(".field__input-wrapper").css("display","none") 
+
+      var wrapAddressCol = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(14)");
+      wrapAddressCol.append("<input id='suburb-address' onchange='RemoveAccents(event)' style='width:100%' class=' field__input' name='' value='' placeholder='Colonia' />");
+      wrapAddressCol.find(".field__input-wrapper").css("display","none") 
+
+      var wrapAddressDel = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(15)");
+      wrapAddressDel.append("<input id='del-address' onchange='RemoveAccents(event)' style='width:100%' class=' field__input' name='' value='' placeholder='Delegación o Municipio' />");
+      wrapAddressDel.find(".field__input-wrapper").css("display","none") 
+
+      var wrapAddressCity = $("body > div.content > div > div.main > div.main__content > div.step > form > div.step__sections > div.section.section--shipping-address > div.section__content > div > div.address-fields > div:nth-child(16)");
+      wrapAddressCity.append("<input id='city-address' onchange='RemoveAccents(event)' style='width:100%' class=' field__input' name='' value='' placeholder='Ciudad' />");
+      wrapAddressCity.find(".field__input-wrapper").css("display","none")
+
+      // funcion para remover acentos de los input para enviar a quickbase
+      function RemoveAccents(event) {        
+        var id= event.target.id;
+        var str = event.target.value;
+        var accents    = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+        var accentsOut = "AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz";
+        str = str.split('');
+        var strLen = str.length;
+        var i, x;
+        for (i = 0; i < strLen; i++) {
+          if ((x = accents.indexOf(str[i])) != -1) {
+            str[i] = accentsOut[x];
+          }
+        }
+        //console.log(str.join(''));        
+        if(id == "first_name") {
+//           console.log("000000");
+          var input = $("#checkout_shipping_address_first_name");
+          input.val(str.join(''));
+        }else if(id == "last_name") {
+//           console.log("111111")
+          var input = $("#checkout_shipping_address_last_name");
+          input.val(str.join(''));
+        }else if(id == "complete-address") {
+//           console.log("222222")
+          var input = $("#checkout_shipping_address_company");
+          input.val(str.join(''));
+        }else if(id == "suburb-address") {
+//           console.log("333333");
+          var input = $("#checkout_shipping_address_address1");
+          input.val(str.join(''));
+        }else if(id == "del-address") {
+//           console.log("444444");
+          var input = $("#checkout_shipping_address_address2");
+          input.val(str.join(''));
+        }else if(id == "city-address") {
+//           console.log("555555");
+          var input = $("#checkout_shipping_address_city");
+          input.val(str.join(''));
+        }
+        console.log(str.join(''));
+        return str.join('');
+      }
+      /****************** quitar acentos de checkout para envio de quickBase ***********************/
+    </script>   -->
+    
+  </body>
+</html>

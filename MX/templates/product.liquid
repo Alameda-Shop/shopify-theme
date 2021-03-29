@@ -1,0 +1,39 @@
+{%- comment -%}
+If the product contains the special __gift tag, we prevent it to be completely accessible by redirecting to the home page
+{%- endcomment -%}
+
+{%- if product.tags contains '__gift' -%}
+  <script>
+    window.location.href = '/';
+  </script>
+{%- else -%}
+  {% section 'product-template' %}
+  {% section 'product-recommendations' %}
+  {% section 'static-promotion-list' %}
+  {% section 'static-recently-viewed-products' %}
+
+  <script>
+    window.ShopifyXR=window.ShopifyXR||function(){(ShopifyXR.q=ShopifyXR.q||[]).push(arguments)};
+    ShopifyXR('addModels', {{ product.media | where: 'media_type', 'model' | json }});
+  </script>
+{%- endif -%}
+
+<div class="container container--flush">
+  <div class="nosto_element" id="productpage-nosto-2"></div>
+  <div class="nosto_element" id="productpage-nosto-3"></div>
+</div>
+
+{%- comment -%}
+<!-- Kwanko : Product retargeting tracker Jeferson Moreno -- 04/11/2019 -->
+<script type="text/javascript" src="https://img.metaffiliation.com/u/29/p68007.js"></script>
+<script type="text/javascript">  
+window.ptag_params = {
+zone: "product",
+productId: "{{ product.id }}",
+categoryId: "{{ collection.id }}",
+customerId: "{{ customer.id }}",
+siteType: "d",
+m_md5: "{{ customer.email }}"
+};  
+</script>
+{%- endcomment -%} 
